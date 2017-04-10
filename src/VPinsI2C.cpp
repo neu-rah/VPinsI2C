@@ -8,7 +8,7 @@ I2CBranch::I2CBranch(TwoWire & wire,char id,char local,char sz)
 	:Wire(wire),serverId(id),portBranch(local,sz) {
 }
 
-void I2CBranch::io() {in();out();}
+void I2CBranch::io() {;in();out();}
 void I2CBranch::mode() {}//TODO: see PCA9557, derive the class to support specific hardware or family
 void I2CBranch::in() {}//TODO: test i2c input shift registers...
 
@@ -28,7 +28,9 @@ bool I2CServerBranch::begin() {
 	while(Wire.endTransmission());
 }
 
-void I2CServerBranch::mode() {dispatch(0b00);}
+void I2CServerBranch::mode() {
+	dispatch(0b00);
+}
 void I2CServerBranch::in() {
 	char op=0b10;
   Wire.beginTransmission(serverId);
@@ -37,12 +39,13 @@ void I2CServerBranch::in() {
   	*(portInputRegister(localPort))=Wire.read();
   Wire.endTransmission(serverId);
 }
-void I2CServerBranch::out() {dispatch(0b01);}
+void I2CServerBranch::out() {
+	dispatch(0b01);
+}
 
 //op is port data info (3 bytes) index, avr ports compatible
 void I2CServerBranch::dispatch(char op) {
-	//Serial.print("i2c dispatch ");
-	//Serial.println(op,BIN);
+	Serial.println(op,BIN);
   Wire.beginTransmission(serverId);
   Wire.write((hostPort<<2)|op);//codify operation on lower 2 bits
   for(int n=0;n<size;n++) {
@@ -50,5 +53,3 @@ void I2CServerBranch::dispatch(char op) {
   }
   Wire.endTransmission(serverId);
 }
-
-
